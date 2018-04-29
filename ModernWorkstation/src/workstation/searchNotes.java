@@ -5,8 +5,7 @@ import java.util.List;
 
 
 public class searchNotes 
-{
-    
+{    
     public List<Notes> searchKeyword(List<List<Notes>> sList, CharSequence cs)
     {
         List<Notes> kHold = new ArrayList<>();
@@ -34,5 +33,7 @@ public class searchNotes
         }
         return hold;
     }
+    
+
     
 }

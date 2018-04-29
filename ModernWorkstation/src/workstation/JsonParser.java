@@ -3,7 +3,7 @@ package workstation;
  * Author: Curtis Warren and Anthony Davis
  * Description: This is a demo for the project SDEV Workstation (Modern Workstation)
  * to show how files should be saved in json form and how to work with the data for use in the program.
- * Version 2.1
+ * Version 2.0(f)
  */
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,7 +16,7 @@ import java.util.Scanner;
 
 public class JsonParser {
 
-		ArrayList<Notes> notesArray = new ArrayList<Notes>();
+	ArrayList<Notes> notesArray = new ArrayList<Notes>();
         List<List<Notes>> noteHold = new ArrayList<List<Notes>>();
 
         public ArrayList<Notes> retrieveNotesArray () {
@@ -87,7 +87,7 @@ public class JsonParser {
 
 	}
 
-	private String parse(File json) {
+	public String parse(File json) {
 
     		StringBuilder builder = new StringBuilder();
 		StringBuilder contentBuilder = new StringBuilder();
@@ -170,24 +170,30 @@ public class JsonParser {
 							System.out.println(contentString.substring("\"Content\":\"".length(), contentString.length() - 1));
 							notesArray.add(note);
 
-              if(noteHold.isEmpty()) {
-	               noteHold.add(new ArrayList<>());
-							 }
+            if(noteHold.isEmpty()) 
+            {
+	       noteHold.add(new ArrayList<>());
+            }
               //creates 2D ArrayList for storing notes by Title
-              for(int x = 0; x < notesArray.size()+1; x++) {
-                  if(noteHold.get(x).isEmpty()) {
+            for(int x = 0; x < notesArray.size()+1; x++) 
+            {
+                if(noteHold.get(x).isEmpty()) 
+                {
                   	noteHold.add(new ArrayList<>());
                     noteHold.get(x).add(note);
-                    if(x == 0) {
+                    if(x == 0) 
+                    {
                       x++;
-	                  }
+	            }
                     break;
-                	} else if(noteHold.get(x).get(0).getTitle().equalsIgnoreCase(note.getTitle())) {
+                } 
+                else if(noteHold.get(x).get(0).getTitle().equalsIgnoreCase(note.getTitle())) 
+                {
                     noteHold.get(x).add(note);
                     break;
-                  }
+                }
 
-            	}
+            }
 						}
 					}
 				}
@@ -215,6 +221,12 @@ public class JsonParser {
 		return "null";
 
 	}
+    
+    public List<List<Notes>> getList() 
+    {
+
+	 return noteHold;
+    }
 
 	public static void main(String[] args) {
 

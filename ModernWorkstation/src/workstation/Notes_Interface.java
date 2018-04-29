@@ -20,6 +20,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -324,6 +325,28 @@ public class Notes_Interface extends JFrame {
 		constraints.fill = GridBagConstraints.HORIZONTAL;
 
 		searchPanel.add(goBt, constraints);
+                
+                goBt.addActionListener( e -> {
+                    JsonParser recentParser = new JsonParser();
+                    searchNotes sn = new searchNotes();
+                    List<Notes> findKey;
+                    List<Notes> findTitle;
+                    File notesFile = new File("src/workstation/Notes.json");
+                    recentParser.parse(notesFile);
+                    findKey = sn.searchKeyword(recentParser.getList(), searchField.getText());
+                    findTitle = sn.searchTitle(recentParser.getList(), searchField.getText());
+                    if(findKey.size() > 0)
+                    {
+                    
+                        JOptionPane.showMessageDialog(null, findKey.toString().replaceAll("\\{","").replaceAll("\\}", "").replaceAll("\\[", "").replaceAll("\\]", ""), "Keyword Matches:", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    
+                    if(findTitle.size() > 0)
+                    {
+                        JOptionPane.showMessageDialog(null, findTitle.toString().replaceAll("\\{","").replaceAll("\\}", "").replaceAll("\\[", "").replaceAll("\\]", ""), "Title Matches:", JOptionPane.INFORMATION_MESSAGE);
+                    }
+
+		});
 
 		/* End of the search section */
 
@@ -348,19 +371,19 @@ public class Notes_Interface extends JFrame {
                 * Added Title and Category labels and text fields *
                 *-------------------------------------------------*/
 
-    		titleLabel =  new JLabel("Title");
+    titleLabel =  new JLabel("Title");
 		titleLabel.setFont(labelFont);
 
-    		categoryLabel =  new JLabel("Category");
+    categoryLabel =  new JLabel("Category");
 		categoryLabel.setFont(labelFont);
 
-    		titleArea = new JTextField(25);
+    titleArea = new JTextField(25);
 		titleArea.setPreferredSize(new Dimension(20, 20));
 
-    		categoryArea = new JTextField(25);
-    		categoryArea.setPreferredSize(new Dimension(20, 20));
+    categoryArea = new JTextField(25);
+    categoryArea.setPreferredSize(new Dimension(20, 20));
 
-    		constraints.gridx = 0;
+    constraints.gridx = 0;
 		constraints.gridy = 0;
 		constraints.gridwidth = 4;
 		constraints.gridheight = 1;
@@ -370,17 +393,17 @@ public class Notes_Interface extends JFrame {
 
 		notesCreationPanel.add(titleLabel, constraints);
 
-    		constraints.gridy = 1;
+    constraints.gridy = 1;
 
-    		notesCreationPanel.add(titleArea, constraints);
+    notesCreationPanel.add(titleArea, constraints);
 
-    		constraints.gridy = 2;
+    constraints.gridy = 2;
 
-    		notesCreationPanel.add(categoryLabel, constraints);
+    notesCreationPanel.add(categoryLabel, constraints);
 
-    		constraints.gridy = 3;
+    constraints.gridy = 3;
 
-    		notesCreationPanel.add(categoryArea, constraints);
+    notesCreationPanel.add(categoryArea, constraints);
 
 		notesArea = new JTextArea(10, 10);
 		notesArea.setPreferredSize(new Dimension(10, 10));
