@@ -19,10 +19,12 @@ import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -31,8 +33,10 @@ import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 import workstation.Notes_Interface.CustomNotesComponent;
+import workstation.Notes_Interface.Reminders;
 
 
 public class Notes_Interface extends JFrame {
@@ -64,6 +68,7 @@ public class Notes_Interface extends JFrame {
 	private JButton browseButton;
 	private static Font labelFont;
 
+	private ArrayList<Reminders> remindersArray = new ArrayList<Reminders>();
 
 	static {
 
@@ -76,6 +81,7 @@ public class Notes_Interface extends JFrame {
 
 	public Notes_Interface ( ) {
 
+		this.setTitle("Modern Workstation");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setSize(800, 400);
 		this.setResizable(false);
@@ -152,6 +158,64 @@ public class Notes_Interface extends JFrame {
 		return newRecentNotesPanel;
 
 	}
+	
+	public JPanel resetRemindersPane(JPanel newRemindersPane) {
+		
+		int row = 0;
+		int col = 0;
+		boolean alternateColor = true;
+		if (remindersArray == null) {
+			
+		} else {
+			
+			remindersPanel.removeAll();
+			
+			for (Reminders reminder : remindersArray) {
+								
+				reminder.alternateColor(alternateColor);
+				
+				remindersPanel.add(reminder, row, 0);
+				
+				alternateColor = !alternateColor;
+				row++;
+			}
+			
+			remindersPanel.setVisible(false);
+			remindersPanel.repaint();
+			remindersPanel.setVisible(true);
+			
+		}
+		
+		return newRemindersPane;
+		
+	}
+	
+	public int translateToTime (String timeInStringForm) {
+		
+		if (timeInStringForm.equals("5 mins")) {
+			
+			return (1000 * 60 * 5);
+			
+		} else if (timeInStringForm.equals("3 mins")) {
+			
+			return (1000 * 60 * 3);
+			
+		} else if (timeInStringForm.equals("1 min")) {
+			
+			return (1000 * 60);
+			
+		} else if (timeInStringForm.equals("30 secs")) {
+			
+			return (1000 * 30);
+	
+		} else {
+			
+			return -1;
+			
+		}
+		
+	}
+	
 	public JPanel resetBrowsePane(JPanel newBrowsePane) {
 
 		JsonParser browseParser = new JsonParser();
@@ -325,29 +389,31 @@ public class Notes_Interface extends JFrame {
 		constraints.fill = GridBagConstraints.HORIZONTAL;
 
 		searchPanel.add(goBt, constraints);
-                
-                goBt.addActionListener( e -> {
-                    JsonParser recentParser = new JsonParser();
-                    searchNotes sn = new searchNotes();
-                    List<Notes> findKey;
-                    List<Notes> findTitle;
-                    File notesFile = new File("src/workstation/Notes.json");
-                    recentParser.parse(notesFile);
-                    findKey = sn.searchKeyword(recentParser.getList(), searchField.getText());
-                    findTitle = sn.searchTitle(recentParser.getList(), searchField.getText());
-                    if(findKey.size() > 0)
-                    {
-                    
-                        JOptionPane.showMessageDialog(null, findKey.toString().replaceAll("\\{","").replaceAll("\\}", "").replaceAll("\\[", "").replaceAll("\\]", ""), "Keyword Matches:", JOptionPane.INFORMATION_MESSAGE);
-                    }
-                    
-                    if(findTitle.size() > 0)
-                    {
-                        JOptionPane.showMessageDialog(null, findTitle.toString().replaceAll("\\{","").replaceAll("\\}", "").replaceAll("\\[", "").replaceAll("\\]", ""), "Title Matches:", JOptionPane.INFORMATION_MESSAGE);
-                    }
 
-		});
+		searchPanel.add(goBt, constraints);
+        
+        goBt.addActionListener( e -> {
+            JsonParser recentParser = new JsonParser();
+            searchNotes sn = new searchNotes();
+            List<Notes> findKey;
+            List<Notes> findTitle;
+            File notesFile = new File("src/workstation/Notes.json");
+            recentParser.parse(notesFile);
+            findKey = sn.searchKeyword(recentParser.getList(), searchField.getText());
+            findTitle = sn.searchTitle(recentParser.getList(), searchField.getText());
+            if(findKey.size() > 0)
+            {
+            
+                JOptionPane.showMessageDialog(null, findKey.toString().replaceAll("\\{","").replaceAll("\\}", "").replaceAll("\\[", "").replaceAll("\\]", ""), "Keyword Matches:", JOptionPane.INFORMATION_MESSAGE);
+            }
+            
+            if(findTitle.size() > 0)
+            {
+                JOptionPane.showMessageDialog(null, findTitle.toString().replaceAll("\\{","").replaceAll("\\}", "").replaceAll("\\[", "").replaceAll("\\]", ""), "Title Matches:", JOptionPane.INFORMATION_MESSAGE);
+            }
 
+        });
+        
 		/* End of the search section */
 
 		/* Start of browse section */
@@ -371,19 +437,19 @@ public class Notes_Interface extends JFrame {
                 * Added Title and Category labels and text fields *
                 *-------------------------------------------------*/
 
-    titleLabel =  new JLabel("Title");
+    		titleLabel =  new JLabel("Title");
 		titleLabel.setFont(labelFont);
 
-    categoryLabel =  new JLabel("Category");
+    		categoryLabel =  new JLabel("Category");
 		categoryLabel.setFont(labelFont);
 
-    titleArea = new JTextField(25);
+    		titleArea = new JTextField(25);
 		titleArea.setPreferredSize(new Dimension(20, 20));
 
-    categoryArea = new JTextField(25);
-    categoryArea.setPreferredSize(new Dimension(20, 20));
+    		categoryArea = new JTextField(25);
+    		categoryArea.setPreferredSize(new Dimension(20, 20));
 
-    constraints.gridx = 0;
+    		constraints.gridx = 0;
 		constraints.gridy = 0;
 		constraints.gridwidth = 4;
 		constraints.gridheight = 1;
@@ -393,22 +459,26 @@ public class Notes_Interface extends JFrame {
 
 		notesCreationPanel.add(titleLabel, constraints);
 
-    constraints.gridy = 1;
+    		constraints.gridy = 1;
 
-    notesCreationPanel.add(titleArea, constraints);
+    		notesCreationPanel.add(titleArea, constraints);
 
-    constraints.gridy = 2;
+    		constraints.gridy = 2;
 
-    notesCreationPanel.add(categoryLabel, constraints);
+    		notesCreationPanel.add(categoryLabel, constraints);
 
-    constraints.gridy = 3;
+    		constraints.gridy = 3;
 
-    notesCreationPanel.add(categoryArea, constraints);
+    		notesCreationPanel.add(categoryArea, constraints);
 
 		notesArea = new JTextArea(10, 10);
 		notesArea.setPreferredSize(new Dimension(10, 10));
 
 		notesArea.setFont(notesFont);
+		//  Wraps lines
+		notesArea.setLineWrap(true);
+		//  Wraps words instead of characters
+		notesArea.setWrapStyleWord(true);
 
 		JScrollPane notesScrollPane = new JScrollPane(notesArea);
 		notesScrollPane.setPreferredSize(new Dimension(200, 200));
@@ -609,26 +679,28 @@ public class Notes_Interface extends JFrame {
 		this.setVisible(true);
 
 	}
+	
 	public void createHomeScreen () {
-
+		
 		if (browsingNotesPanel != null) {
 			this.remove(browsingNotesPanel);
 		}
-
+		
+		
 		homePanel = new JPanel(new GridBagLayout());
-
+		
 		GridBagConstraints constraints = new GridBagConstraints();
 
 		Insets insets = new Insets(0,0,0,0);
-
+		
 		constraints.insets = insets;
-
+		
 		/* Start of home and browse button section */
-
+		
 		JPanel homeBrowseBtPanel = new JPanel(new GridBagLayout());
-
+		
 		JButton homeBt = new JButton("Home");
-
+		
 		constraints.gridx = 0;
 		constraints.gridy = 0;
 		constraints.gridwidth = 1;
@@ -638,15 +710,15 @@ public class Notes_Interface extends JFrame {
 		constraints.fill = GridBagConstraints.HORIZONTAL;
 
 		homeBrowseBtPanel.add(homeBt, constraints);
-
+		
 		JButton browseBt = new JButton("Browse");
-
+		
 		browseBt.addActionListener( e -> {
-
+			
 			createBrowsingNotesScreen();
-
+			
 		});
-
+		
 		constraints.gridx = 1;
 		constraints.gridy = 0;
 		constraints.gridwidth = 1;
@@ -659,14 +731,14 @@ public class Notes_Interface extends JFrame {
 
 
 		/* End of home and browse button section*/
-
+		
 		/* Start of recent notes section*/
-
+		
 		JPanel recentNotesSectionPanel = new JPanel(new GridBagLayout());
 
 		JLabel recentNotesLabel = new JLabel("Recent Notes");
 		recentNotesLabel.setFont(labelFont);
-
+		
 		constraints.gridx = 0;
 		constraints.gridy = 0;
 		constraints.gridwidth = 1;
@@ -676,11 +748,11 @@ public class Notes_Interface extends JFrame {
 		constraints.fill = GridBagConstraints.BOTH;
 
 		recentNotesSectionPanel.add(recentNotesLabel, constraints);
-
+		
 		recentNotesPanel = new JPanel(new GridLayout(0, 1));
-
+		
 		recentNotesPanel = populateRecentNotes(recentNotesPanel, 10);
-
+		
 		JScrollPane recentNotesScroll = new JScrollPane(recentNotesPanel);
 		recentNotesScroll.setPreferredSize(new Dimension(200, 200));
 
@@ -693,12 +765,12 @@ public class Notes_Interface extends JFrame {
 		constraints.fill = GridBagConstraints.BOTH;
 
 		recentNotesSectionPanel.add(recentNotesScroll, constraints);
-
+		
 
 		/* End of recent notes section*/
 
 		/* Start of reminders section*/
-
+		
 		JPanel remindersSectionPanel = new JPanel(new GridBagLayout());
 
 		JLabel remindersLabel = new JLabel("Reminders");
@@ -713,11 +785,8 @@ public class Notes_Interface extends JFrame {
 		constraints.fill = GridBagConstraints.BOTH;
 
 		remindersSectionPanel.add(remindersLabel, constraints);
-
-		remindersPanel = new JPanel(new GridLayout(0, 1));
-
-		JScrollPane remindersScroll = new JScrollPane(remindersPanel);
-		remindersScroll.setPreferredSize(new Dimension(100, 200));
+		
+		JLabel reminderMessageLabel = new JLabel("Reminder Message");
 
 		constraints.gridx = 0;
 		constraints.gridy = 1;
@@ -725,25 +794,116 @@ public class Notes_Interface extends JFrame {
 		constraints.gridheight = 1;
 		constraints.weightx = 1;
 		constraints.weighty = 1;
+		constraints.fill = GridBagConstraints.HORIZONTAL;
+		
+		remindersSectionPanel.add(reminderMessageLabel, constraints);
+
+		JTextField reminderMessageField = new JTextField(30);
+
+		constraints.gridx = 1;
+		constraints.gridy = 1;
+		constraints.gridwidth = 1;
+		constraints.gridheight = 1;
+		constraints.weightx = 1;
+		constraints.weighty = 1;
+		constraints.fill = GridBagConstraints.HORIZONTAL;
+
+		remindersSectionPanel.add(reminderMessageField, constraints);
+
+		JLabel durationLabel = new JLabel("Set Timer");
+
+		constraints.gridx = 0;
+		constraints.gridy = 2;
+		constraints.gridwidth = 1;
+		constraints.gridheight = 1;
+		constraints.weightx = 1;
+		constraints.weighty = 1;
+		constraints.fill = GridBagConstraints.HORIZONTAL;
+		
+		remindersSectionPanel.add(durationLabel, constraints);
+
+
+		String[] timesArray = {"5 mins", "3 mins", "1 min", "30 secs"};
+		
+		JComboBox durationChoices = new JComboBox(timesArray);
+		
+		constraints.gridx = 1;
+		constraints.gridy = 2;
+		constraints.gridwidth = 1;
+		constraints.gridheight = 1;
+		constraints.weightx = 1;
+		constraints.weighty = 1;
+		constraints.fill = GridBagConstraints.HORIZONTAL;
+
+		remindersSectionPanel.add(durationChoices, constraints);
+		
+		
+		JButton setReminder = new JButton("Set Reminder");
+		
+		setReminder.addActionListener( e -> {
+			
+			String reminderMessage = reminderMessageField.getText();
+					
+			String selectedItem = (String) durationChoices.getSelectedItem();
+			
+			int reminderTime = translateToTime(selectedItem);
+			
+			Reminders reminder = new Reminders(reminderMessage, reminderTime, true);
+			
+			remindersArray.add(reminder);
+			
+			remindersPanel = resetRemindersPane(remindersPanel);
+			
+			remindersPanel.setVisible(false);
+			remindersPanel.repaint();
+			remindersPanel.setVisible(true);
+			
+		});
+			
+		constraints.gridx = 1;
+		constraints.gridy = 3;
+		constraints.gridwidth = 2;
+		constraints.gridheight = 1;
+		constraints.weightx = 1;
+		constraints.weighty = 1;
+		constraints.fill = GridBagConstraints.HORIZONTAL;
+
+		remindersSectionPanel.add(setReminder, constraints);
+		
+		
+		remindersPanel = new JPanel(new GridLayout(0, 1));
+		
+		JScrollPane remindersScroll = new JScrollPane(remindersPanel);
+		remindersScroll.setPreferredSize(new Dimension(100, 200));
+
+		constraints.gridx = 0;
+		constraints.gridy = 8;
+		constraints.gridwidth = 2;
+		constraints.gridheight = 4;
+		constraints.weightx = 2;
+		constraints.weighty = 2;
 		constraints.fill = GridBagConstraints.BOTH;
 
 		remindersSectionPanel.add(remindersScroll, constraints);
-
-
+		
+		
 		/* End of reminders section*/
-
+		
 		/* Start of the add note section */
 
 		JPanel addNotePanel = new JPanel(new GridBagLayout());
-
+		
 		JButton addNoteBt = new JButton("Add Note");
 		addNoteBt.setFont(notesFont);
-
+		
 		addNoteBt.addActionListener( e -> {
-
+			
 			createBrowsingNotesScreen();
-
+			
 		});
+		
+		/* End of the add note section */
+
 
 		constraints.gridx = 1;
 		constraints.gridy = 1;
@@ -766,7 +926,7 @@ public class Notes_Interface extends JFrame {
 		homePanel.add(homeBrowseBtPanel, constraints);
 
 		constraints.insets = new Insets(5, 10, 10, 10);
-
+		
 		constraints.gridx = 0;
 		constraints.gridy = 1;
 		constraints.gridwidth = 1;
@@ -780,29 +940,24 @@ public class Notes_Interface extends JFrame {
 		constraints.gridx = 1;
 		constraints.gridy = 1;
 		constraints.gridwidth = 1;
-		constraints.gridheight = 1;
+		constraints.gridheight = 2;
 		constraints.weightx = 1;
 		constraints.weighty = 1;
-		constraints.fill = GridBagConstraints.BOTH;
+		constraints.fill = GridBagConstraints.HORIZONTAL;
 
 		homePanel.add(remindersSectionPanel, constraints);
-
-		constraints.gridx = 1;
-		constraints.gridy = 2;
-		constraints.gridwidth = 1;
-		constraints.gridheight = 1;
-		constraints.weightx = 1;
-		constraints.weighty = 1;
-		constraints.fill = GridBagConstraints.BOTH;
-
-		homePanel.add(addNotePanel, constraints);
-
+		
 		this.add(homePanel);
-
+		
 		this.repaint();
 		this.setVisible(true);
-
-
+		
+		if (remindersPanel != null) {
+			
+			remindersPanel = resetRemindersPane(remindersPanel);
+			
+		}
+		
 	}
 	public void editNotesScreen () {
 
@@ -825,7 +980,112 @@ public class Notes_Interface extends JFrame {
 		this.setVisible(true);
 
 	}
+	
+	public class Reminders extends JPanel {
+		
+		JLabel reminderMessage;
+		JLabel timeElapsedLabel;
+		JButton doneBt;
+		Timer reminderTimer;
+		Timer elapsedTimer;
+		long endOfTimer;
+		long timeElapsed;
 
+		Reminders (String newMessage, int timeDuration, boolean alternate) {
+			
+			reminderMessage = new JLabel(newMessage);
+			reminderMessage.setFont(new Font("Avant Garde", 18, 18));
+			
+			reminderTimer = new Timer(timeDuration, e -> {
+				
+				JOptionPane.showMessageDialog(this, reminderMessage);
+				remindersArray.remove(this);
+				remindersPanel = resetRemindersPane(remindersPanel);
+				reminderTimer.stop();
+			});
+			
+			endOfTimer = System.currentTimeMillis() + timeDuration;
+			
+			doneBt = new JButton ("Done");
+			
+			doneBt.addActionListener( e -> {
+							
+				remindersArray.remove(this);
+				
+				remindersPanel = resetRemindersPane(remindersPanel);
+				
+				reminderTimer.stop();
+
+			});
+			
+			long elapsed = (timeDuration * 1000) * 60 * 60;
+						
+			Time timestamp = new Time(endOfTimer);
+						
+			timeElapsedLabel = new JLabel("Expires: " + timestamp.toLocalTime());
+			timeElapsedLabel.setFont(new Font("Avant Garde", 18, 18));
+			
+			System.out.print(timestamp.toLocalTime());
+			
+			this.setLayout(new GridBagLayout());
+			
+			GridBagConstraints reminderConstraints = new GridBagConstraints();
+
+			Insets reminderInsets = new Insets(0,0,0,0);
+			
+			reminderConstraints.gridx = 0;
+			reminderConstraints.gridy = 0;
+			reminderConstraints.weightx = 1;
+			reminderConstraints.weighty = 1;
+			reminderConstraints.gridwidth = 1;
+			reminderConstraints.gridheight = 1;
+			reminderConstraints.fill = GridBagConstraints.HORIZONTAL;
+
+			this.add(reminderMessage, reminderConstraints);
+			
+			reminderConstraints.gridx = 0;
+			reminderConstraints.gridy = 1;
+			reminderConstraints.weightx = 1;
+			reminderConstraints.weighty = 1;
+			reminderConstraints.gridwidth = 1;
+			reminderConstraints.gridheight = 1;
+			reminderConstraints.fill = GridBagConstraints.HORIZONTAL;
+
+			this.add(timeElapsedLabel, reminderConstraints);
+			
+			
+			reminderConstraints.gridx = 1;
+			reminderConstraints.gridy = 1;
+			reminderConstraints.weightx = 1;
+			reminderConstraints.weighty = 1;
+			reminderConstraints.gridwidth = 1;
+			reminderConstraints.gridheight = 1;
+			reminderConstraints.fill = GridBagConstraints.HORIZONTAL;
+
+			this.add(doneBt, reminderConstraints);
+			
+			//  Alternates color of background.
+			if (alternate) {
+				this.setBackground(new Color(.5f, .7f, .75f));
+			} else {
+				this.setBackground(new Color(.5f, .5f, .7f));
+			}
+			
+			reminderTimer.start();
+			
+		}
+		
+		public void alternateColor (boolean newAlternate) {
+			
+			if (newAlternate) {
+				this.setBackground(new Color(.5f, .7f, .75f));
+			} else {
+				this.setBackground(new Color(.5f, .5f, .7f));
+			}
+			
+		}
+			
+	}
 	public class CustomNotesComponent extends JPanel {
 
 		JLabel noteTitle;

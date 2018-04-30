@@ -16,7 +16,7 @@ import java.util.Scanner;
 
 public class JsonParser {
 
-	ArrayList<Notes> notesArray = new ArrayList<Notes>();
+		ArrayList<Notes> notesArray = new ArrayList<Notes>();
         List<List<Notes>> noteHold = new ArrayList<List<Notes>>();
 
         public ArrayList<Notes> retrieveNotesArray () {
